@@ -18,7 +18,7 @@ CREATE TABLE `blog_tag`
   DEFAULT CHARSET = utf8 COMMENT ='文章标签管理';
 
 #文章表
-CREATE TABLE `blog article`
+CREATE TABLE `blog_article`
 (
     `id`          int(10) unsigned NOT NULL AUTO_INCREMENT,
     `tag_id`      int(10) unsigned    DEFAULT '0' COMMENT '标签ID',
