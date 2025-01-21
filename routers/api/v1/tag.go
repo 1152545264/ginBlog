@@ -4,7 +4,7 @@ import (
 	"ginBlog/models"
 	"ginBlog/pkg/e"
 	"ginBlog/pkg/setting"
-	"ginBlog/util"
+	"ginBlog/pkg/util"
 	"github.com/astaxie/beego/validation"
 	"github.com/gin-gonic/gin"
 	"github.com/unknwon/com"

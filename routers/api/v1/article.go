@@ -4,8 +4,9 @@ import "C"
 import (
 	"ginBlog/models"
 	"ginBlog/pkg/e"
+	"ginBlog/pkg/logging"
 	"ginBlog/pkg/setting"
-	"ginBlog/util"
+	"ginBlog/pkg/util"
 	"github.com/astaxie/beego/validation"
 	"github.com/gin-gonic/gin"
 	"github.com/unknwon/com"
@@ -69,9 +70,8 @@ func GetArticles(c *gin.Context) {
 		data["total"] = models.GetArticleTotal(maps)
 	} else {
 		for _, err := range valid.Errors {
-			log.Printf("err.key: %s, err.message: %s, ", err.Key, err.Message)
+			logging.Info(err.Key, err.Message)
 		}
-		log.Println()
 	}
 	c.JSON(http.StatusOK, gin.H{
 		"code": code,
@@ -115,9 +115,8 @@ func AddArticle(c *gin.Context) {
 		}
 	} else {
 		for _, err := range valid.Errors {
-			log.Printf("err.keys : %s, err.message: %s, ", err.Key, err.Message)
+			logging.Info(err.Key, err.Message)
 		}
-		log.Println()
 	}
 	c.JSON(http.StatusOK, gin.H{
 		"code": code,
@@ -176,9 +175,8 @@ func EditArticle(c *gin.Context) {
 		}
 	} else {
 		for _, err := range valid.Errors {
-			log.Printf("err.key: %s, err.message: %s, ", err.Key, err.Message)
+			logging.Info(err.Key, err.Message)
 		}
-		log.Println()
 	}
 	c.JSON(http.StatusOK, gin.H{
 		"code": code,
@@ -204,9 +202,8 @@ func DeleteArticle(c *gin.Context) {
 		}
 	} else {
 		for _, err := range valid.Errors {
-			log.Printf("err.key: %s, err.message: %s, ", err.Key, err.Message)
+			logging.Info(err.Key, err.Message)
 		}
-		log.Println()
 	}
 	c.JSON(http.StatusOK, gin.H{
 		"code": code,
