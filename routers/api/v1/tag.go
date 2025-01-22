@@ -3,6 +3,7 @@ package v1
 import (
 	"ginBlog/pkg/app"
 	"ginBlog/pkg/e"
+	"ginBlog/pkg/export"
 	"ginBlog/pkg/setting"
 	"ginBlog/pkg/util"
 	"ginBlog/service/tag_service"
@@ -177,4 +178,28 @@ func DeleteTag(c *gin.Context) {
 	}
 
 	appG.Response(http.StatusOK, e.SUCCESS, nil)
+}
+
+func ExportTag(c *gin.Context) {
+	appG := app.Gin{C: c}
+	name := c.PostForm("name")
+
+	state := -1
+	if arg := c.PostForm("state"); arg != "" {
+		state = com.StrTo(arg).MustInt()
+	}
+	tagService := tag_service.Tag{
+		Name:  name,
+		State: state,
+	}
+
+	fileName, err := tagService.Export()
+	if err != nil {
+		appG.Response(http.StatusOK, e.ERROR_EXPORT_TAG_FAIL, nil)
+		return
+	}
+	appG.Response(http.StatusOK, e.SUCCESS, map[string]string{
+		"export_url":      export.GetExcelFullUrl(fileName),
+		"export_save_url": setting.AppSetting.PrefixUrl + export.GetExcelPath() + fileName,
+	})
 }

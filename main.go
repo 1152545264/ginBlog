@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"ginBlog/models"
+	"ginBlog/pkg/gredis"
 	"ginBlog/pkg/logging"
 	"ginBlog/pkg/setting"
 	"ginBlog/routers"
@@ -18,6 +19,7 @@ func main() {
 	setting.SetUp()
 	models.SetUp()
 	logging.SetUp()
+	gredis.SetUp()
 
 	/*
 		windows本身不支持endless库，可以参考如下链接的解决办法：

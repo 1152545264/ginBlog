@@ -2,6 +2,7 @@ package tag_service
 
 import (
 	"encoding/json"
+	"ginBlog/pkg/logging"
 	"io"
 	"strconv"
 	"time"
@@ -11,9 +12,7 @@ import (
 
 	"ginBlog/models"
 	"ginBlog/pkg/export"
-	"ginBlog/pkg/file"
 	"ginBlog/pkg/gredis"
-	"ginBlog/pkg/logging"
 	"ginBlog/service/cache_service"
 )
 
@@ -77,11 +76,14 @@ func (t *Tag) GetAll() ([]models.Tag, error) {
 			logging.Info(err)
 		} else {
 			json.Unmarshal(data, &cacheTags)
-			return cacheTags, nil
+			if len(cacheTags) > 0 {
+				return cacheTags, nil
+			}
 		}
 	}
 
-	tags, err := models.GetTags(t.PageNum, t.PageSize, t.getMaps())
+	mpInfo := t.getMaps()
+	tags, err := models.GetTags(t.PageNum, t.PageSize, mpInfo)
 	if err != nil {
 		return nil, err
 	}
@@ -96,15 +98,14 @@ func (t *Tag) Export() (string, error) {
 		return "", err
 	}
 
-	xlsFile := xlsx.NewFile()
-	sheet, err := xlsFile.AddSheet("标签信息")
+	file := xlsx.NewFile()
+	sheet, err := file.AddSheet("标签信息")
 	if err != nil {
 		return "", err
 	}
 
 	titles := []string{"ID", "名称", "创建人", "创建时间", "修改人", "修改时间"}
 	row := sheet.AddRow()
-
 	var cell *xlsx.Cell
 	for _, title := range titles {
 		cell = row.AddCell()
@@ -127,22 +128,15 @@ func (t *Tag) Export() (string, error) {
 			cell.Value = value
 		}
 	}
-
-	time := strconv.Itoa(int(time.Now().Unix()))
-	filename := "tags-" + time + export.EXT
-
-	dirFullPath := export.GetExcelFullPath()
-	err = file.IsNotExistMkDir(dirFullPath)
+	time := strconv.FormatInt(time.Now().Unix(), 10)
+	fileName := "tags-" + time + ".xlsx"
+	fullPath := export.GetExcelFullPath() + fileName
+	err = file.Save(fullPath)
 	if err != nil {
-		return "", err
+		return "", nil
 	}
+	return fileName, nil
 
-	err = xlsFile.Save(dirFullPath + filename)
-	if err != nil {
-		return "", err
-	}
-
-	return filename, nil
 }
 
 func (t *Tag) Import(r io.Reader) error {
@@ -166,9 +160,9 @@ func (t *Tag) Import(r io.Reader) error {
 	return nil
 }
 
-func (t *Tag) getMaps() map[string]interface{} {
+func (t *Tag) getMaps() map[string]any {
 	maps := make(map[string]interface{})
-	maps["deleted_on"] = 0
+	maps["deleted_on"] = 0 //标签处于未被删除状态
 
 	if t.Name != "" {
 		maps["name"] = t.Name

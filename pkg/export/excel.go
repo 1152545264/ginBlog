@@ -6,7 +6,14 @@ const EXT = ".xlsx"
 
 // GetExcelFullUrl get the full access path of the Excel file
 func GetExcelFullUrl(name string) string {
-	return setting.AppSetting.PrefixUrl + "/" + GetExcelPath() + name
+	var (
+		excelPath, res string
+	)
+	excelPath = GetExcelPath()         //< fixme: 此处是空值
+	res = setting.AppSetting.PrefixUrl ///< fixme: 此处是空值
+	res += "/" + excelPath
+	res += name
+	return res
 }
 
 // GetExcelPath get the relative save path of the Excel file
