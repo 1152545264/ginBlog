@@ -16,6 +16,10 @@ type App struct {
 	ImageMaxSize   int
 	ImageAllowExts []string
 
+	ExportSavePath string
+	QrCodeSavePath string
+	FontSavePath   string
+
 	LogSavePath string
 	LogSaveName string
 	LogFileExt  string
@@ -44,27 +48,38 @@ type DataBase struct {
 
 var DataBaseSetting = &DataBase{}
 
+type Redis struct {
+	Host        string
+	Password    string
+	MaxIdle     int
+	MaxActive   int
+	IdleTimeOut time.Duration
+}
+
+var RedisSetting = &Redis{}
+
+var cfg *ini.File
+
 func SetUp() {
-	Cfg, err := ini.Load("conf/app.ini")
+	var err error
+	cfg, err = ini.Load("conf/app.ini")
 	if err != nil {
 		log.Fatalf("Fail to parse 'conf/app.ini' : %v", err)
 	}
-	err = Cfg.Section("app").MapTo(AppSetting)
-	if err != nil {
-		log.Fatalf("Cfg.Map to AppSetting err: %v", err)
-	}
-	AppSetting.ImageMaxSize = AppSetting.ImageMaxSize * 102 * 1024
+	mapTo("app", AppSetting)
+	mapTo("server", ServerSetting)
+	mapTo("database", DataBaseSetting)
+	mapTo("redis", RedisSetting)
 
-	err = Cfg.Section("server").MapTo(ServerSetting)
-	if err != nil {
-		log.Fatalf("Cfg.Map to ServerSeeting err: %v", err)
-	}
-	ServerSetting.ReadTimeOut = ServerSetting.ReadTimeOut * time.Second
-	ServerSetting.WriteTimeOut = ServerSetting.WriteTimeOut * time.Second
+	AppSetting.ImageMaxSize *= 1 << 20
+	ServerSetting.ReadTimeOut *= time.Second
+	ServerSetting.WriteTimeOut *= time.Second
+	RedisSetting.IdleTimeOut *= time.Second
+}
 
-	err = Cfg.Section("database").MapTo(DataBaseSetting)
+func mapTo(section string, v any) {
+	err := cfg.Section(section).MapTo(v)
 	if err != nil {
-		log.Fatalf("Cfg.MapTo DatabaseSetting err: %v", err)
+		log.Fatalf("cfg.Mapto %s err : 5v\n", section, err)
 	}
-
 }
