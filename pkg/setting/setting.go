@@ -6,46 +6,65 @@ import (
 	"time"
 )
 
-var (
-	Cfg          *ini.File
+type App struct {
+	JwtSecret       string
+	PageSize        int
+	RuntimeRootPath string
+
+	ImagePrefixUrl string
+	ImageSavePath  string
+	ImageMaxSize   int
+	ImageAllowExts []string
+
+	LogSavePath string
+	LogSaveName string
+	LogFileExt  string
+	TimeFormat  string
+}
+
+var AppSetting = &App{}
+
+type Server struct {
 	RunMode      string
-	HTTPPort     int
+	HttpPort     int
 	ReadTimeOut  time.Duration
 	WriteTimeOut time.Duration
-	PageSize     int
-	JwtSecrete   string
-)
-
-func init() {
-	var err error
-	confPath := "conf/app.ini"
-	Cfg, err = ini.Load(confPath)
-	if err != nil {
-		log.Fatalf("Fail to parse %s, err:%v", confPath, err)
-	}
-	LoadBase()
-	loadServer()
-	LoadApp()
-}
-func LoadBase() {
-	RunMode = Cfg.Section("").Key("RUN_MODE").MustString("debug")
 }
 
-func loadServer() {
-	sec, err := Cfg.GetSection("server")
-	if err != nil {
-		log.Fatalf("Fail to get section 'server' , err:%v", err)
-	}
-	HTTPPort = sec.Key("HTTP_PORT").MustInt(8000)
-	ReadTimeOut = time.Duration(sec.Key("READ_TIMEOUT").MustInt(60)) * time.Second
-	WriteTimeOut = time.Duration(sec.Key("WRITE_TIMEOUT").MustInt(60)) * time.Second
+var ServerSetting = &Server{}
+
+type DataBase struct {
+	Type        string
+	User        string
+	Password    string
+	Host        string
+	Name        string
+	TablePrefix string
 }
 
-func LoadApp() {
-	sec, err := Cfg.GetSection("app")
+var DataBaseSetting = &DataBase{}
+
+func SetUp() {
+	Cfg, err := ini.Load("conf/app.ini")
 	if err != nil {
-		log.Fatalf("Fail to get section 'app', err:%v", err)
+		log.Fatalf("Fail to parse 'conf/app.ini' : %v", err)
 	}
-	JwtSecrete = sec.Key("JWT_SECRET").MustString("!@)*#)!@U#@*!@!)")
-	PageSize = sec.Key("PAGE_SIZE").MustInt(10)
+	err = Cfg.Section("app").MapTo(AppSetting)
+	if err != nil {
+		log.Fatalf("Cfg.Map to AppSetting err: %v", err)
+	}
+	AppSetting.ImageMaxSize = AppSetting.ImageMaxSize * 102 * 1024
+
+	err = Cfg.Section("server").MapTo(ServerSetting)
+	if err != nil {
+		log.Fatalf("Cfg.Map to ServerSeeting err: %v", err)
+	}
+	ServerSetting.ReadTimeOut = ServerSetting.ReadTimeOut * time.Second
+	ServerSetting.WriteTimeOut = ServerSetting.WriteTimeOut * time.Second
+
+	err = Cfg.Section("database").MapTo(DataBaseSetting)
+	if err != nil {
+		log.Fatalf("Cfg.MapTo DatabaseSetting err: %v", err)
+	}
+
 }

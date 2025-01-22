@@ -3,3 +3,9 @@ htt://127.0.0.1:8000/api/v1/tags?name=ggg&state=1&created_by=laohua&token=eyJhbG
 
 // deleteTags DELETE
 http://127.0.0.1:8000/api/v1/tags/8?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IiIsInBhc3N3b3JkIjoiIiwiZXhwIjoxNzM3NDY2NTI5LCJpc3MiOiJnaW4tYmxvZyJ9.PRvpF0XcBuET-Lxng5aseYscNHDkoXC4Ud8GXPuCl8U
+
+//POST请求上传图片
+http://127.0.0.1:8000/upload
+
+//GET请求获取图片
+http://127.0.0.1:8000/upload/images/098f6bcd4621d373cade4e832627b4f6.png

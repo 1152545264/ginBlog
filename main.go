@@ -3,6 +3,8 @@ package main
 import (
 	"context"
 	"fmt"
+	"ginBlog/models"
+	"ginBlog/pkg/logging"
 	"ginBlog/pkg/setting"
 	"ginBlog/routers"
 	"log"
@@ -13,6 +15,10 @@ import (
 )
 
 func main() {
+	setting.SetUp()
+	models.SetUp()
+	logging.SetUp()
+
 	/*
 		windows本身不支持endless库，可以参考如下链接的解决办法：
 		https://learnku.com/articles/51696
@@ -34,10 +40,11 @@ func main() {
 	// go1.8+的方案
 	router := routers.InitRouter()
 	s := &http.Server{
-		Addr:           fmt.Sprintf(":%d", setting.HTTPPort),
-		Handler:        router,
-		ReadTimeout:    setting.ReadTimeOut,
-		WriteTimeout:   setting.WriteTimeOut,
+		Addr:         fmt.Sprintf(":%d", setting.ServerSetting.HttpPort),
+		Handler:      router,
+		ReadTimeout:  setting.ServerSetting.ReadTimeOut,
+		WriteTimeout: setting.ServerSetting.WriteTimeOut,
+
 		MaxHeaderBytes: 1 << 20,
 	}
 
