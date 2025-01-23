@@ -4,8 +4,9 @@ import (
 	"ginBlog/pkg/qrcode"
 	"ginBlog/pkg/setting"
 	"ginBlog/pkg/util"
-	qr "github.com/boombuler/barcode/qr"
 	"net/http"
+
+	qr "github.com/boombuler/barcode/qr"
 
 	"github.com/astaxie/beego/validation"
 	"github.com/gin-gonic/gin"
@@ -247,25 +248,22 @@ func DeleteArticle(c *gin.Context) {
 }
 
 const (
-	QRCODE_URL = "https://github.com/EDDYCJY/blog#gin%E7%B3%BB%E5%88%97%E7%9B%AE%E5%BD%95"
+	QRCODE_URL = "https://github.com/1152545264/ginBlog"
 )
 
 func GenerateArticlePoster(c *gin.Context) {
 	appG := app.Gin{C: c}
-	article := &article_service.Article{}
-
-	curQr := qrcode.NewQrCode(QRCODE_URL, 300, 300, qr.M, qr.Auto)
-	postName := article_service.GetPosterFlag() + "-" +
-		qrcode.GetQrCodeFileName(curQr.URL) + curQr.GetQrCodeExt()
-	articlePoster := article_service.NewArticlePoster(postName, article, curQr)
-
+	article := article_service.Article{}
+	qr := qrcode.NewQrCode(QRCODE_URL, 300, 300, qr.M, qr.Auto)
+	posterName := article_service.GetPosterFlag() + "-" + qrcode.GetQrCodeFileName(qr.URL) + qr.GetQrCodeExt()
+	ArticlePoster := article_service.NewArticlePoster(posterName, &article, qr)
 	articlePosterBgService := article_service.NewArticlePosterBg(
-		"bg.jp",
-		articlePoster,
+		"bg.jpg",
+		ArticlePoster,
 		&article_service.Rect{
 			X0: 0,
 			Y0: 0,
-			X1: 550,
+			X1: 500,
 			Y1: 700,
 		},
 		&article_service.Pt{
@@ -274,15 +272,17 @@ func GenerateArticlePoster(c *gin.Context) {
 		},
 	)
 
-	_, filePtah, err := articlePosterBgService.Generate()
+	_, filePath, err := articlePosterBgService.Generate()
 	if err != nil {
 		appG.Response(http.StatusInternalServerError, e.ERROR_GEN_ARTICLE_POSTER_FAIL, nil)
 		return
 	}
-
-	appG.Response(http.StatusOK, e.SUCCESS, map[string]any{
-		"post_url":        qrcode.GetQrCodeFullUrl(postName),
-		"poster_save_url": filePtah + postName,
+	if err != nil {
+		appG.Response(http.StatusOK, e.ERROR_GEN_ARTICLE_POSTER_FAIL, nil)
+		return
+	}
+	appG.Response(http.StatusOK, e.SUCCESS, map[string]string{
+		"post_url":        qrcode.GetQrCodeFullUrl(posterName),
+		"poster_save_url": filePath + posterName,
 	})
-
 }

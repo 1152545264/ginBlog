@@ -3,6 +3,7 @@ package routers
 import (
 	"ginBlog/middleware/jwt"
 	"ginBlog/pkg/export"
+	"ginBlog/pkg/qrcode"
 	"ginBlog/pkg/setting"
 	"ginBlog/pkg/upload"
 	"ginBlog/routers/api"
@@ -25,8 +26,10 @@ func InitRouter() *gin.Engine {
 	r.StaticFS("/export", http.Dir(export.GetExcelFullPath()))
 
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
-	r.GET("/auth", api.GetAuth)
+	r.GET("/auth", api.GetAuth) //登录
 	r.POST("/upload", api.UploadImage)
+	//博客二维码链接
+	r.StaticFS("/qrcode", http.Dir(qrcode.GetQrCodeFullPath()))
 
 	apiV1 := r.Group("/api/v1")
 	apiV1.Use(jwt.JWT())
@@ -50,6 +53,9 @@ func InitRouter() *gin.Engine {
 		apiV1.PUT("/articles/:id", v1.EditArticle)
 		//删除指定文章
 		apiV1.DELETE("/articles/:id", v1.DeleteArticle)
+
+		//生成海报
+		apiV1.POST("/articles/poster/generate", v1.GenerateArticlePoster)
 
 		//导出标签
 		r.POST("/tags/export", v1.ExportTag)

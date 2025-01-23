@@ -4,12 +4,13 @@ import (
 	"ginBlog/pkg/file"
 	"ginBlog/pkg/qrcode"
 	"ginBlog/pkg/setting"
-	"github.com/golang/freetype"
 	"image"
 	"image/draw"
 	"image/jpeg"
 	"io/ioutil"
 	"os"
+
+	"github.com/golang/freetype"
 )
 
 type ArticlePoster struct {
@@ -47,13 +48,6 @@ func (a *ArticlePoster) OpenMergedImage(path string) (*os.File, error) {
 	return f, nil
 }
 
-type ArticlePosterBg struct {
-	Name string
-	*ArticlePoster
-	*Rect
-	*Pt
-}
-
 type Rect struct {
 	Name string
 	X0   int
@@ -65,6 +59,13 @@ type Rect struct {
 type Pt struct {
 	X int
 	Y int
+}
+
+type ArticlePosterBg struct {
+	Name string
+	*ArticlePoster
+	*Rect
+	*Pt
 }
 
 func NewArticlePosterBg(name string, ap *ArticlePoster, rect *Rect, pt *Pt) *ArticlePosterBg {
@@ -171,24 +172,7 @@ func (a *ArticlePosterBg) Generate() (string, string, error) {
 		draw.Draw(jpg, jpg.Bounds(), bgImage, bgImage.Bounds().Min, draw.Over)
 		draw.Draw(jpg, jpg.Bounds(), qrImage, qrImage.Bounds().Min.Sub(image.Pt(a.Pt.X, a.Pt.Y)), draw.Over)
 
-		err = a.DrawPoster(&DrawText{
-			JPG:    jpg,
-			Merged: mergedF,
-
-			Title: "Golang Gin 系列文章",
-			X0:    80,
-			Y0:    160,
-			Size0: 42,
-
-			SubTitle: "---煎鱼",
-			X1:       320,
-			Y1:       220,
-			Size1:    36,
-		}, "msyhbd.ttc")
-
-		if err != nil {
-			return "", "", err
-		}
+		jpeg.Encode(mergedF, jpg, nil)
 	}
 
 	return fileName, path, nil

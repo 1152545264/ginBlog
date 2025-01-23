@@ -1,3 +1,6 @@
+//登录GET请求
+http://127.0.0.1:8000/auth?username=test&password=test123456
+
 // addTags POST
 htt://127.0.0.1:8000/api/v1/tags?name=ggg&state=1&created_by=laohua&token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IiIsInBhc3N3b3JkIjoiIiwiZXhwIjoxNzM3NDY2NTI5LCJpc3MiOiJnaW4tYmxvZyJ9.PRvpF0XcBuET-Lxng5aseYscNHDkoXC4Ud8GXPuCl8U
 
@@ -15,3 +18,6 @@ http://127.0.0.1:8000/tags/export
 
 //查看已经导入的tag表内容，浏览器直接输入
 http://127.0.0.1:8000/export
+
+//生成博客二维码, POST请求, 下面的$token可通过登录GET请求生成
+http://127.0.0.1:8000/api/v1/articles/poster/generate?token=$token
