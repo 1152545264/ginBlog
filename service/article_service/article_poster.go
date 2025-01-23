@@ -94,7 +94,9 @@ type DrawText struct {
 
 func (a *ArticlePosterBg) DrawPoster(d *DrawText, fontName string) error {
 	fontSource := setting.AppSetting.RuntimeRootPath + setting.AppSetting.FontSavePath + fontName
-	fontSourceBytes, err := ioutil.ReadFile(fontSource)
+	workPath, _ := os.Getwd()
+	fontFullPth := workPath + "/" + fontSource
+	fontSourceBytes, err := ioutil.ReadFile(fontFullPth)
 	if err != nil {
 		return err
 	}
@@ -172,7 +174,24 @@ func (a *ArticlePosterBg) Generate() (string, string, error) {
 		draw.Draw(jpg, jpg.Bounds(), bgImage, bgImage.Bounds().Min, draw.Over)
 		draw.Draw(jpg, jpg.Bounds(), qrImage, qrImage.Bounds().Min.Sub(image.Pt(a.Pt.X, a.Pt.Y)), draw.Over)
 
-		jpeg.Encode(mergedF, jpg, nil)
+		// jpeg.Encode(mergedF, jpg, nil)
+		err = a.DrawPoster(&DrawText{
+			JPG:    jpg,
+			Merged: mergedF,
+
+			Title: "Gin Blog",
+			X0:    80,
+			Y0:    60,
+			Size0: 42,
+
+			SubTitle: "老油条666",
+			X1:       320,
+			Y1:       120,
+			Size1:    60,
+		}, "msyhbd.ttc")
+		if err != nil {
+			return "", "", err
+		}
 	}
 
 	return fileName, path, nil

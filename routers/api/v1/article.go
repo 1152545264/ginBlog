@@ -277,10 +277,6 @@ func GenerateArticlePoster(c *gin.Context) {
 		appG.Response(http.StatusInternalServerError, e.ERROR_GEN_ARTICLE_POSTER_FAIL, nil)
 		return
 	}
-	if err != nil {
-		appG.Response(http.StatusOK, e.ERROR_GEN_ARTICLE_POSTER_FAIL, nil)
-		return
-	}
 	appG.Response(http.StatusOK, e.SUCCESS, map[string]string{
 		"post_url":        qrcode.GetQrCodeFullUrl(posterName),
 		"poster_save_url": filePath + posterName,
