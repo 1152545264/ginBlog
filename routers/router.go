@@ -2,14 +2,16 @@ package routers
 
 import (
 	"ginBlog/middleware/jwt"
+	"ginBlog/pkg/export"
 	"ginBlog/pkg/setting"
 	"ginBlog/pkg/upload"
 	"ginBlog/routers/api"
 	v1 "ginBlog/routers/api/v1"
-	"github.com/gin-gonic/gin"
-	"github.com/swaggo/files" // v1.6之后这个包名换了
-	ginSwagger "github.com/swaggo/gin-swagger"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files" // v1.6之后这个包名换了
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 // InitRouter 初始化默认的多路复用器
@@ -20,6 +22,8 @@ func InitRouter() *gin.Engine {
 	gin.SetMode(setting.ServerSetting.RunMode)
 
 	r.StaticFS("/upload/images", http.Dir(upload.GetImageFullPath()))
+	r.StaticFS("/export", http.Dir(export.GetExcelFullPath()))
+
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	r.GET("/auth", api.GetAuth)
 	r.POST("/upload", api.UploadImage)
@@ -49,6 +53,7 @@ func InitRouter() *gin.Engine {
 
 		//导出标签
 		r.POST("/tags/export", v1.ExportTag)
+		r.POST("/tags/import", v1.ImportTag)
 	}
 	return r
 }

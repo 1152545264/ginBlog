@@ -4,13 +4,15 @@ import (
 	"ginBlog/pkg/app"
 	"ginBlog/pkg/e"
 	"ginBlog/pkg/export"
+	"ginBlog/pkg/logging"
 	"ginBlog/pkg/setting"
 	"ginBlog/pkg/util"
 	"ginBlog/service/tag_service"
+	"net/http"
+
 	"github.com/astaxie/beego/validation"
 	"github.com/gin-gonic/gin"
 	"github.com/unknwon/com"
-	"net/http"
 )
 
 // GetTags 获取多个文章标签
@@ -200,6 +202,25 @@ func ExportTag(c *gin.Context) {
 	}
 	appG.Response(http.StatusOK, e.SUCCESS, map[string]string{
 		"export_url":      export.GetExcelFullUrl(fileName),
-		"export_save_url": setting.AppSetting.PrefixUrl + export.GetExcelPath() + fileName,
+		"export_save_url": setting.AppSetting.PrefixUrl + "/" + export.GetExcelPath() + fileName,
 	})
+}
+
+func ImportTag(c *gin.Context) {
+	appG := app.Gin{C: c}
+
+	file, _, err := c.Request.FormFile("file")
+	if err != nil {
+		logging.Warn(err)
+		appG.Response(http.StatusOK, e.ERROR_IMPORT_TAG_FAIL, nil)
+		return
+	}
+	tagService := tag_service.Tag{}
+	err = tagService.Import(file)
+	if err != nil {
+		logging.Warn(err)
+		appG.Response(http.StatusOK, e.ERROR_IMPORT_TAG_FAIL, nil)
+		return
+	}
+	appG.Response(http.StatusOK, e.SUCCESS, nil)
 }

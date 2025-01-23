@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"ginBlog/pkg/logging"
 	"io"
+	"os"
 	"strconv"
 	"time"
 
@@ -130,7 +131,13 @@ func (t *Tag) Export() (string, error) {
 	}
 	time := strconv.FormatInt(time.Now().Unix(), 10)
 	fileName := "tags-" + time + ".xlsx"
-	fullPath := export.GetExcelFullPath() + fileName
+
+	//路径不存在则创建
+	curPtah := export.GetExcelFullPath()
+	if _, err = os.Stat(curPtah); os.IsNotExist(err) {
+		os.MkdirAll(curPtah, 0766)
+	}
+	fullPath := curPtah + fileName
 	err = file.Save(fullPath)
 	if err != nil {
 		return "", nil
@@ -149,9 +156,7 @@ func (t *Tag) Import(r io.Reader) error {
 	for irow, row := range rows {
 		if irow > 0 {
 			var data []string
-			for _, cell := range row {
-				data = append(data, cell)
-			}
+			data = append(data, row...)
 
 			models.AddTag(data[1], 1, data[2])
 		}

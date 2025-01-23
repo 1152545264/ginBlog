@@ -9,3 +9,9 @@ http://127.0.0.1:8000/upload
 
 //GET请求获取图片
 http://127.0.0.1:8000/upload/images/098f6bcd4621d373cade4e832627b4f6.png
+
+//导出TAG到Excel POST请求
+http://127.0.0.1:8000/tags/export
+
+//查看已经导入的tag表内容，浏览器直接输入
+http://127.0.0.1:8000/export

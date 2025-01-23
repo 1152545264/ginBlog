@@ -1,6 +1,9 @@
 package export
 
-import "github.com/EDDYCJY/go-gin-example/pkg/setting"
+import (
+	"ginBlog/pkg/setting"
+	"os"
+)
 
 const EXT = ".xlsx"
 
@@ -9,19 +12,20 @@ func GetExcelFullUrl(name string) string {
 	var (
 		excelPath, res string
 	)
-	excelPath = GetExcelPath()         //< fixme: 此处是空值
-	res = setting.AppSetting.PrefixUrl ///< fixme: 此处是空值
-	res += "/" + excelPath
+	excelPath = GetExcelPath()
+	res += excelPath
 	res += name
 	return res
 }
 
 // GetExcelPath get the relative save path of the Excel file
 func GetExcelPath() string {
-	return setting.AppSetting.ExportSavePath
+	res := setting.AppSetting.ExportSavePath
+	return res
 }
 
 // GetExcelFullPath Get the full save path of the Excel file
 func GetExcelFullPath() string {
-	return setting.AppSetting.RuntimeRootPath + GetExcelPath()
+	curPath, _ := os.Getwd()
+	return curPath + "/" + GetExcelPath()
 }
